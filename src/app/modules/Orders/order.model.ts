@@ -16,7 +16,7 @@ const orderSchema = new Schema<TOrder>({
 	},
 	quantity: {
 		type: Number,
-		required: [true, "Quantity is required"],
+		required: [true, "Quantity is required" ],
 	},
 });
 

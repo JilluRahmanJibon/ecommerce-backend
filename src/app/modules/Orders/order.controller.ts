@@ -1,21 +1,49 @@
 import { Request, Response } from "express";
 import orderValidationSchema from "./order.zod.validation";
 import { OrderService } from "./order.service";
+import { ProductService } from "../Products/product.service";
 
 // order create
 const orderCreate = async (req: Request, res: Response) => {
 	try {
 		const orderData = req.body;
 		const zodParseData = orderValidationSchema.parse(orderData);
-		const result = await OrderService.createOrderIntoDB(zodParseData);
-		res.status(200).json({
-			success: true,
-			message: "Order created successfully!",
-			data: result,
-		});
+		const { productId, quantity } = orderData;
+		const getAProduct = await ProductService.getAProductFromDB(productId);
+		const { inventory } = getAProduct;
+
+		if (quantity <= inventory.quantity) {
+			const updateQuantity = inventory.quantity - quantity;
+			if (updateQuantity === 0) {
+				const res = {
+					quantity: updateQuantity,
+					inStock: false,
+				};
+
+				return ProductService.updateAProductFromDB(productId, {
+					inventory: res,
+				});
+			} else {
+				inventory.quantity = updateQuantity;
+				ProductService.updateAProductFromDB(productId, { inventory });
+
+				const result = await OrderService.createOrderIntoDB(zodParseData);
+
+				res.status(200).json({
+					success: true,
+					message: "Order created successfully!",
+					data: result,
+				});
+			}
+		} else {
+			res.status(400).json({
+				success: false,
+				message: "Insufficient quantity available in inventory",
+			});
+		}
 	} catch (err) {
 		res.status(500).json({
-			success: true,
+			success: false,
 			message: "Something went wrong when order",
 		});
 	}
@@ -49,7 +77,7 @@ const getOrdersByEmail = async (req: Request, res: Response) => {
 				success: false,
 				message: "Order not found",
 			});
-			return
+			return;
 		}
 		res.status(200).json({
 			success: true,
