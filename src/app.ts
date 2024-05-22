@@ -9,7 +9,15 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/products/", ProductRoutes);
-app.use("/api/orders/",OrderRoutes);
+app.use("/api/orders/", OrderRoutes);
+
+// Route not found handler here
+app.use((req, res) => {
+	res.status(404).json({
+		success: false,
+		message: "Route not found",
+	});
+});
 
 const getAController = (req: Request, res: Response) => {
 	const a = "Welcome to ecommerce server";
