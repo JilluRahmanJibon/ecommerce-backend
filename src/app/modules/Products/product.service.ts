@@ -9,8 +9,8 @@ const createProductInToDB = async (productData: TProduct) => {
 };
 
 // get all products
-const getAllProductsFromDB = async ( ) => {
-	const result = await Product.find( );
+const getAllProductsFromDB = async () => {
+	const result = await Product.find();
 	return result;
 };
 
@@ -44,5 +44,6 @@ export const ProductService = {
 	getAllProductsFromDB,
 	getAProductFromDB,
 	updateAProductFromDB,
-	deleteAProductFromDB,searchProductsFromDB
+	deleteAProductFromDB,
+	searchProductsFromDB,
 };
